@@ -1,0 +1,9 @@
+name: Office Assistant Face Tracker
+description: A local face-recognition and PCA9685 pan-tilt foundation for an Arduino UNO Q mobile office assistant.
+ports: []
+bricks:
+- arduino:video_object_detection:
+    model: face-detection
+- arduino:dbstorage_sqlstore: {}
+- arduino:web_ui: {}
+icon: ☺️

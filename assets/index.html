@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Office Assistant Face Tracker</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div>
+        <p class="eyebrow">Arduino UNO Q</p>
+        <h1 class="arduino-text">Office Assistant Face Tracker</h1>
+      </div>
+      <img class="arduino-logo" src="./img/logo.svg" alt="Arduino" />
+    </header>
+
+    <div id="error-container" class="error-message" hidden></div>
+
+    <main class="recognition-layout">
+      <section class="container camera-card">
+        <div class="section-heading">
+          <div><p class="eyebrow">Live camera</p><h2>Recognition</h2></div>
+          <span id="connectionBadge" class="status-pill">Connecting</span>
+        </div>
+        <div id="videoFeedContainer" class="video-shell">
+          <div id="videoPlaceholder" class="camera-status">
+            <img src="./img/no-face.svg" alt="Searching for webcam" />
+            <p>Searching for webcam…</p>
+          </div>
+          <iframe id="dynamicIframe" title="Video stream" width="1024" height="768" frameborder="0" hidden></iframe>
+          <div id="faceOverlay" class="face-overlay" aria-live="polite"></div>
+        </div>
+        <div id="recognitionResult" class="recognition-result neutral">
+          <span class="result-dot"></span>
+          <div><strong>Waiting for a face</strong><small>Known people will appear here.</small></div>
+        </div>
+        <div class="confidence-row">
+          <label for="confidenceSlider">Detection confidence</label>
+          <input type="range" id="confidenceSlider" min="0.1" max="0.95" step="0.05" value="0.5" />
+          <output id="confidenceValueDisplay">0.50</output>
+        </div>
+      </section>
+
+      <aside class="side-stack">
+        <section class="container">
+          <div class="section-heading">
+            <div><p class="eyebrow">Database</p><h2>Enroll a person</h2></div>
+          </div>
+          <form id="enrollmentForm">
+            <label for="personName">Person's name</label>
+            <input id="personName" type="text" maxlength="80" required placeholder="e.g. Abdu" autocomplete="off" />
+            <label for="sampleCount">Camera samples</label>
+            <select id="sampleCount">
+              <option value="8">8 — faster</option>
+              <option value="10" selected>10 — recommended</option>
+              <option value="12">12 — more varied</option>
+            </select>
+            <p class="field-help">Press start and keep exactly one face in view. Look forward, then slowly turn left, right, up, and down. The UNO Q camera captures clear and sufficiently different views automatically.</p>
+            <button id="enrollButton" class="primary-button" type="submit">Start camera enrollment</button>
+            <button id="cancelEnrollmentButton" type="button" hidden>Cancel enrollment</button>
+            <p id="enrollmentStatus" class="form-status" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section class="container">
+          <div class="section-heading">
+            <div><p class="eyebrow">Authorized faces</p><h2>Enrolled people</h2></div>
+            <span id="peopleCount" class="count-pill">0</span>
+          </div>
+          <div id="peopleList" class="people-list"><p class="empty-state">No one enrolled yet.</p></div>
+        </section>
+
+        <section class="container">
+          <div class="section-heading"><div><p class="eyebrow">Audit</p><h2>Recent results</h2></div></div>
+          <div id="recentDetections" class="history-list"><p class="empty-state">No recognition results yet.</p></div>
+        </section>
+      </aside>
+    </main>
+
+    <script>
+      const iframe = document.getElementById('dynamicIframe');
+      const placeholder = document.getElementById('videoPlaceholder');
+      const streamUrl = `http://${window.location.hostname}:4912/embed`;
+      let streamRetry;
+      iframe.onload = () => {
+        clearInterval(streamRetry);
+        placeholder.hidden = true;
+        iframe.hidden = false;
+      };
+      const loadStream = () => { iframe.src = streamUrl; };
+      loadStream();
+      streamRetry = setInterval(loadStream, 1500);
+    </script>
+    <script src="libs/socket.io.min.js"></script>
+    <script src="libs/arduino.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
